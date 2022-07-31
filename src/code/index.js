@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { generateController } from './controller.js';
 import { generateInterfaces } from './interface.js';
+import { generateModule } from './module.js';
 import { generateService } from './services.js';
 
 export function printNode({ node, name, type }) {
@@ -20,11 +21,13 @@ export function generateCode({ definition }) {
     const services = definition.entities.map((entity) => generateService(entity));
     const interfaces = definition.entities.map((entity) => generateInterfaces(entity));
     const controller = definition.entities.map((entity) => generateController(entity));
+    const modules = definition.entities.map((entity) => generateModule(entity));
     return [
         ...entities,
         ...services,
         ...interfaces,
-        ...controller
+        ...controller,
+        ...modules
     ];
 };
 
