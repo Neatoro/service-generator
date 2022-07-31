@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { resolve as path_resolve } from 'path';
-import { writeResult } from './code/file.js';
+import { copyStatic, writeResult } from './code/file.js';
 import { generateCode, printNode } from './code/index.js';
 import { error, info } from './log.js';
 import { loadValidSchema, transformSchema } from './schema/index.js';
@@ -21,6 +21,7 @@ program
             info('Generated Code');
             const sources = codeBlocks.map(printNode);
             await writeResult({ sources });
+            await copyStatic();
         } catch (e) {
             error(e);
         }
