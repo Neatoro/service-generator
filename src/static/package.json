@@ -1,11 +1,4 @@
 {
-    "name": "service",
-    "version": "1.0.0",
-    "main": "index.ts",
-    "scripts": {
-        "start": "ts-node ."
-    },
-    "license": "ISC",
     "dependencies": {
         "@nestjs/common": "^9.0.7",
         "@nestjs/core": "^9.0.7",
