@@ -15,13 +15,32 @@ export function generateCode({ definition }) {
 };
 
 function generateEntity(entity) {
+    const typeOrmImport = ts.factory.createImportDeclaration(
+        undefined,
+        undefined,
+        ts.factory.createObjectLiteralExpression(
+            [ts.factory.createIdentifier('Entity'), ts.factory.createIdentifier('Column')]
+        ),
+        ts.factory.createIdentifier('typeorm')
+    );
+
+    const entityAnnotation = ts.factory.createDecorator(
+        ts.factory.createCallExpression(ts.factory.createIdentifier('Entity'))
+    );
+
     const properties = entity.properties.map((property) => {
-        return ts.factory.createPropertyDeclaration(undefined, undefined, property.name, undefined, ts.factory.createTypeReferenceNode(property.type), undefined);
+        const columnAnnotation = ts.factory.createDecorator(
+            ts.factory.createCallExpression(ts.factory.createIdentifier('Column'))
+        );
+
+        return ts.factory.createPropertyDeclaration([columnAnnotation], undefined, property.name, undefined, ts.factory.createTypeReferenceNode(property.type), undefined);
     });
 
-    const classNode = ts.factory.createClassDeclaration(undefined, undefined, entity.name, undefined, [], properties);
+    const classNode = ts.factory.createClassDeclaration([entityAnnotation], undefined, entity.name, undefined, [], properties);
+
+    const block = ts.factory.createSourceFile([typeOrmImport, classNode]);
     return {
         name: entity.name,
-        node: classNode
+        node: block
     };
 }
