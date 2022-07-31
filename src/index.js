@@ -1,0 +1,29 @@
+import { Command } from 'commander';
+import { resolve as path_resolve } from 'path';
+import { generateCode, printNode } from './code/index.js';
+import { error, info } from './log.js';
+import { loadValidSchema, transformSchema } from './schema/index.js';
+
+const program = new Command();
+program
+    .name('service-generator')
+    .argument('<file>', 'Input File for service generation')
+    .action((file) => {
+        try {
+            const schema = loadValidSchema({
+                path: path_resolve(process.cwd(), file)
+            });
+            info('Loaded Schema');
+            const definition = transformSchema({ schema });
+            info('Transformed to Definition');
+            const codeBlocks = generateCode({ definition });
+            info('Generated Code');
+            for (const entity of codeBlocks.entities) {
+                printNode(entity);
+            }
+        } catch (e) {
+            error(e);
+        }
+    });
+
+program.parse();
