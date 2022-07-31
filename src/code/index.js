@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { generateAppModule } from './app.js';
 import { generateController } from './controller.js';
 import { generateInterfaces } from './interface.js';
 import { generateModule } from './module.js';
@@ -27,7 +28,8 @@ export function generateCode({ definition }) {
         ...services,
         ...interfaces,
         ...controller,
-        ...modules
+        ...modules,
+        generateAppModule(definition.entities)
     ];
 };
 
