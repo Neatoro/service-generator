@@ -1,13 +1,14 @@
 import ts from 'typescript';
 
-export function printNode({ node, name }) {
+export function printNode({ node, name, type }) {
     const fileName = `${name}.ts`;
     const file = ts.createSourceFile(fileName, '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
     const result = printer.printNode(ts.EmitHint.Unspecified, node, file);
     return {
         name: fileName,
-        code: result
+        code: result,
+        type
     };
 }
 
@@ -49,6 +50,7 @@ function generateEntity(entity) {
     const block = ts.factory.createSourceFile([typeOrmImport, classNode]);
     return {
         name: entity.name,
-        node: block
+        node: block,
+        type: 'entity'
     };
 }
