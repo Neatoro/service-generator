@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { resolve as path_resolve } from 'path';
+import { writeResult } from './code/file.js';
 import { generateCode, printNode } from './code/index.js';
 import { error, info } from './log.js';
 import { loadValidSchema, transformSchema } from './schema/index.js';
@@ -8,7 +9,7 @@ const program = new Command();
 program
     .name('service-generator')
     .argument('<file>', 'Input File for service generation')
-    .action((file) => {
+    .action(async (file) => {
         try {
             const schema = loadValidSchema({
                 path: path_resolve(process.cwd(), file)
@@ -18,9 +19,8 @@ program
             info('Transformed to Definition');
             const codeBlocks = generateCode({ definition });
             info('Generated Code');
-            for (const entity of codeBlocks.entities) {
-                printNode(entity);
-            }
+            const sources = codeBlocks.entities.map(printNode)
+            await writeResult({ sources });
         } catch (e) {
             error(e);
         }

@@ -1,10 +1,14 @@
 import ts from 'typescript';
 
 export function printNode({ node, name }) {
-    const file = ts.createSourceFile(`${name}.ts`, '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
+    const fileName = `${name}.ts`;
+    const file = ts.createSourceFile(fileName, '', ts.ScriptTarget.ESNext, false, ts.ScriptKind.TS);
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
     const result = printer.printNode(ts.EmitHint.Unspecified, node, file);
-    console.log(result);
+    return {
+        name: fileName,
+        code: result
+    };
 }
 
 export function generateCode({ definition }) {
@@ -21,7 +25,7 @@ function generateEntity(entity) {
         ts.factory.createObjectLiteralExpression(
             [ts.factory.createIdentifier('Entity'), ts.factory.createIdentifier('Column'), ts.factory.createIdentifier('PrimaryGeneratedColumn')]
         ),
-        ts.factory.createIdentifier('typeorm')
+        ts.factory.createStringLiteral('typeorm', true)
     );
 
     const entityAnnotation = ts.factory.createDecorator(
