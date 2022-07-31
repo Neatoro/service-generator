@@ -19,7 +19,7 @@ program
             info('Transformed to Definition');
             const codeBlocks = generateCode({ definition });
             info('Generated Code');
-            const sources = codeBlocks.map(printNode)
+            const sources = codeBlocks.map(printNode);
             await writeResult({ sources });
         } catch (e) {
             error(e);
