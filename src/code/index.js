@@ -1,4 +1,6 @@
 import ts from 'typescript';
+import { generateInterfaces } from './interface.js';
+import { generateService } from './services.js';
 
 export function printNode({ node, name, type }) {
     const fileName = `${name}.ts`;
@@ -13,10 +15,14 @@ export function printNode({ node, name, type }) {
 }
 
 export function generateCode({ definition }) {
-    const entityNodes = definition.entities.map((entity) => generateEntity(entity));
-    return {
-        entities: entityNodes
-    };
+    const entities = definition.entities.map((entity) => generateEntity(entity));
+    const services = definition.entities.map((entity) => generateService(entity));
+    const interfaces = definition.entities.map((entity) => generateInterfaces(entity));
+    return [
+        ...entities,
+        ...services,
+        ...interfaces
+    ];
 };
 
 function generateEntity(entity) {
@@ -45,7 +51,7 @@ function generateEntity(entity) {
 
         return ts.factory.createPropertyDeclaration([columnAnnotation], undefined, property.name, undefined, ts.factory.createTypeReferenceNode(property.type), undefined);    });
 
-    const classNode = ts.factory.createClassDeclaration([entityAnnotation], undefined, entity.name, undefined, [], [idProperty, ...properties]);
+    const classNode = ts.factory.createClassDeclaration([entityAnnotation], [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)], entity.name, undefined, [], [idProperty, ...properties]);
 
     const block = ts.factory.createSourceFile([typeOrmImport, classNode]);
     return {
