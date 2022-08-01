@@ -1,52 +1,16 @@
 import ts from 'typescript';
+import { ImportHandler } from './lib/imports.js';
 
 export function generateService(entity) {
     const serviceName = `${entity.name}Service`;
 
-    const nestjsCommonImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('Injectable')]
-        ),
-        ts.factory.createStringLiteral('@nestjs/common', true)
-    );
-
-    const nestjsTypeORMImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('InjectRepository')]
-        ),
-        ts.factory.createStringLiteral('@nestjs/typeorm', true)
-    );
-
-    const typeORMImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('Repository')]
-        ),
-        ts.factory.createStringLiteral('typeorm', true)
-    );
-
-    const entityImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(entity.name)]
-        ),
-        ts.factory.createStringLiteral(`../entity/${entity.name}`, true)
-    );
-
-    const interfaceImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Dto`)]
-        ),
-        ts.factory.createStringLiteral(`../interface/${entity.name}Interface`, true)
-    );
+    const importHandler = new ImportHandler();
+    importHandler
+        .addImport({ fields: ['Injectable'], module: '@nestjs/common' })
+        .addImport({ fields: ['InjectRepository'], module: '@nestjs/typeorm' })
+        .addImport({ fields: ['Repository'], module: 'typeorm' })
+        .addImport({ fields: [entity.name], module: `../entity/${entity.name}` })
+        .addImport({ fields: [`${entity.name}Dto`], module: `../interface/${entity.name}Interface` });
 
     const injectableAnnotation = ts.factory.createDecorator(
         ts.factory.createCallExpression(ts.factory.createIdentifier('Injectable'))
@@ -68,11 +32,7 @@ export function generateService(entity) {
     );
 
     const block = ts.factory.createSourceFile([
-        nestjsCommonImport,
-        nestjsTypeORMImport,
-        typeORMImport,
-        entityImport,
-        interfaceImport,
+        ...importHandler.buildImports(),
         classNode
     ]);
 

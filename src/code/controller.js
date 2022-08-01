@@ -1,50 +1,15 @@
 import ts from 'typescript';
+import { ImportHandler } from './lib/imports.js';
 
 export function generateController(entity) {
     const controllerName = `${entity.name}Controller`;
 
-    const nestjsCommonImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [
-                ts.factory.createIdentifier('Controller'),
-                ts.factory.createIdentifier('Delete'),
-                ts.factory.createIdentifier('Get'),
-                ts.factory.createIdentifier('Param'),
-                ts.factory.createIdentifier('Post'),
-                ts.factory.createIdentifier('Body')
-            ]
-        ),
-        ts.factory.createStringLiteral('@nestjs/common', true)
-    );
-
-    const serviceImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Service`)]
-        ),
-        ts.factory.createStringLiteral(`../service/${entity.name}Service`, true)
-    );
-
-    const entityImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(entity.name)]
-        ),
-        ts.factory.createStringLiteral(`../entity/${entity.name}`, true)
-    );
-
-    const interfaceImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Dto`)]
-        ),
-        ts.factory.createStringLiteral(`../interface/${entity.name}Interface`, true)
-    );
+    const importHandler = new ImportHandler();
+    importHandler
+        .addImport({ fields: ['Controller', 'Delete', 'Get', 'Param', 'Post', 'Body'], module: '@nestjs/common' })
+        .addImport({ fields: [`${entity.name}Service`], module: `../service/${entity.name}Service` })
+        .addImport({ fields: [entity.name], module: `../entity/${entity.name}` })
+        .addImport({ fields: [`${entity.name}Dto`], module:`../interface/${entity.name}Interface` });
 
     const controllerAnnotation = ts.factory.createDecorator(
         ts.factory.createCallExpression(ts.factory.createIdentifier('Controller'), undefined, [ts.factory.createStringLiteral(entity.name.toLowerCase(), true)])
@@ -67,7 +32,7 @@ export function generateController(entity) {
 
     return {
         name: controllerName,
-        node: ts.factory.createSourceFile([nestjsCommonImport, serviceImport, entityImport, interfaceImport, classNode]),
+        node: ts.factory.createSourceFile([...importHandler.buildImports(), classNode]),
         type: 'controller'
     };
 }

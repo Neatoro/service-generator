@@ -1,55 +1,16 @@
 import ts from 'typescript';
+import { ImportHandler } from './lib/imports.js';
 
 export function generateModule(entity) {
     const moduleName = `${entity.name}Module`;
 
-    const nestjsCommonImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [
-                ts.factory.createIdentifier('Module')
-            ]
-        ),
-        ts.factory.createStringLiteral('@nestjs/common', true)
-    );
-
-    const nestjsTypeORMImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('TypeOrmModule')]
-        ),
-        ts.factory.createStringLiteral('@nestjs/typeorm', true)
-    );
-
-    const controllerImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Controller`)]
-        ),
-        ts.factory.createStringLiteral(`../controller/${entity.name}Controller`, true)
-    );
-
-
-    const serviceImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Service`)]
-        ),
-        ts.factory.createStringLiteral(`../service/${entity.name}Service`, true)
-    );
-
-    const entityImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(entity.name)]
-        ),
-        ts.factory.createStringLiteral(`../entity/${entity.name}`, true)
-    );
+    const importHandler = new ImportHandler();
+    importHandler
+        .addImport({ fields: ['Module'], module: '@nestjs/common' })
+        .addImport({ fields: ['TypeOrmModule'], module: '@nestjs/typeorm' })
+        .addImport({ fields: [`${entity.name}Controller`], module: `../controller/${entity.name}Controller` })
+        .addImport({ fields: [`${entity.name}Service`], module: `../service/${entity.name}Service` })
+        .addImport({ fields: [entity.name], module: `../entity/${entity.name}` });
 
     const moduleAnnotation = ts.factory.createDecorator(
         ts.factory.createCallExpression(ts.factory.createIdentifier('Module'), undefined, [
@@ -78,7 +39,7 @@ export function generateModule(entity) {
 
     return {
         name: moduleName,
-        node: ts.factory.createSourceFile([nestjsCommonImport, nestjsTypeORMImport, controllerImport, serviceImport, entityImport, classNode]),
+        node: ts.factory.createSourceFile([...importHandler.buildImports(), classNode]),
         type: 'module'
     };
 }

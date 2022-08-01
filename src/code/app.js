@@ -1,16 +1,15 @@
 import ts from 'typescript';
+import { ImportHandler } from './lib/imports.js';
 
 export function generateAppModule(entities) {
-    const pathCommonImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [
-                ts.factory.createIdentifier('resolve')
-            ]
-        ),
-        ts.factory.createStringLiteral('path', true)
-    );
+    const importHandler = new ImportHandler();
+    importHandler
+        .addImport({ fields: ['resolve'], module: 'path' })
+        .addImport({ fields: ['Module'], module: '@nestjs/common' })
+        .addImport({ fields: ['TypeOrmModule'], module: '@nestjs/typeorm' });
+
+    entities.forEach((entity) => importHandler.addImport({ fields: [`${entity.name}Module`], module: `../module/${entity.name}Module` }));
+    entities.forEach((entity) => importHandler.addImport({ fields: [entity.name], module: `../entity/${entity.name}` }));
 
     const ormConfig = ts.factory.createVariableStatement(
         [ts.factory.createModifier(ts.SyntaxKind.ConstKeyword)],
@@ -37,45 +36,9 @@ export function generateAppModule(entities) {
         )
     );
 
-    const nestjsCommonImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [
-                ts.factory.createIdentifier('Module')
-            ]
-        ),
-        ts.factory.createStringLiteral('@nestjs/common', true)
-    );
-
-    const nestjsTypeORMImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('TypeOrmModule')]
-        ),
-        ts.factory.createStringLiteral('@nestjs/typeorm', true)
-    );
-
     const modulesLiterals = entities.map((entity) => ts.factory.createIdentifier(`${entity.name}Module`));
-    const moduleImports = entities.map((entity) => ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}Module`)]
-        ),
-        ts.factory.createStringLiteral(`../module/${entity.name}Module`, true)
-    ));
-
     const entitiesLiterals = entities.map((entity) => ts.factory.createIdentifier(entity.name));
-    const entityImports = entities.map((entity) => ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier(`${entity.name}`)]
-        ),
-        ts.factory.createStringLiteral(`../entity/${entity.name}`, true)
-    ));
+
     const config = ts.factory.createObjectLiteralExpression([
         ts.factory.createPropertyAssignment('entities', ts.factory.createArrayLiteralExpression(entitiesLiterals)),
         ts.factory.createSpreadAssignment(ts.factory.createIdentifier('ormconfig'))
@@ -107,7 +70,7 @@ export function generateAppModule(entities) {
 
     return {
         name: 'AppModule',
-        node: ts.factory.createSourceFile([pathCommonImport, nestjsCommonImport, nestjsTypeORMImport, ...moduleImports, ...entityImports, ormConfig, classNode]),
+        node: ts.factory.createSourceFile([...importHandler.buildImports(), ormConfig, classNode]),
         type: 'app'
     };
 }

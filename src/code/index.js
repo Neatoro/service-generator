@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { generateAppModule } from './app.js';
 import { generateController } from './controller.js';
 import { generateInterfaces } from './interface.js';
+import { ImportHandler } from './lib/imports.js';
 import { generateModule } from './module.js';
 import { generateService } from './services.js';
 
@@ -34,14 +35,8 @@ export function generateCode({ definition }) {
 };
 
 function generateEntity(entity) {
-    const typeOrmImport = ts.factory.createImportDeclaration(
-        undefined,
-        undefined,
-        ts.factory.createObjectLiteralExpression(
-            [ts.factory.createIdentifier('Entity'), ts.factory.createIdentifier('Column'), ts.factory.createIdentifier('PrimaryGeneratedColumn')]
-        ),
-        ts.factory.createStringLiteral('typeorm', true)
-    );
+    const importHandler = new ImportHandler();
+    importHandler.addImport({ fields: ['Entity', 'PrimaryGeneratedColumn', 'Column'], module: 'typeorm' });
 
     const entityAnnotation = ts.factory.createDecorator(
         ts.factory.createCallExpression(ts.factory.createIdentifier('Entity'))
@@ -61,7 +56,7 @@ function generateEntity(entity) {
 
     const classNode = ts.factory.createClassDeclaration([entityAnnotation], [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)], entity.name, undefined, [], [idProperty, ...properties]);
 
-    const block = ts.factory.createSourceFile([typeOrmImport, classNode]);
+    const block = ts.factory.createSourceFile([...importHandler.buildImports(), classNode]);
     return {
         name: entity.name,
         node: block,
