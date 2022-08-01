@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { createModuleAnnotation } from './lib/annotations.js';
 import { ImportHandler } from './lib/imports.js';
+import { createPropertyAccess } from './lib/utils.js';
 
 export function generateModule(entity) {
     const moduleName = entity.getModuleName();
@@ -16,7 +17,7 @@ export function generateModule(entity) {
     const moduleAnnotation = createModuleAnnotation({
         imports: [
             ts.factory.createCallExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('TypeOrmModule'), 'forFeature'),
+                createPropertyAccess('TypeOrmModule.forFeature'),
                 undefined,
                 [ts.factory.createArrayLiteralExpression([ts.factory.createIdentifier(entity.getEntityName())])]
             )

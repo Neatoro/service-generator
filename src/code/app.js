@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { createModuleAnnotation } from './lib/annotations.js';
 import { ImportHandler } from './lib/imports.js';
+import { createPropertyAccess } from './lib/utils.js';
 
 export function generateAppModule(entities) {
     const importHandler = new ImportHandler();
@@ -27,7 +28,7 @@ export function generateAppModule(entities) {
                         undefined,
                         [
                             ts.factory.createCallExpression(
-                                ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('process'), 'cwd')
+                                createPropertyAccess('process.cwd')
                             ),
                             ts.factory.createStringLiteral('ormconfig.json', true)
                         ]
@@ -48,7 +49,7 @@ export function generateAppModule(entities) {
     const moduleAnnotation = createModuleAnnotation({
         imports: [
             ts.factory.createCallExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('TypeOrmModule'), 'forRoot'),
+                createPropertyAccess('TypeOrmModule.forRoot'),
                 undefined,
                 [config]
             ),

@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { ImportHandler } from './lib/imports.js';
+import { createPropertyAccess } from './lib/utils.js';
 
 export function generateController(entity) {
     const importHandler = new ImportHandler();
@@ -57,10 +58,7 @@ function generateListFunction(entity) {
 
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('service')),
-                ts.factory.createIdentifier('list')
-            ),
+            createPropertyAccess('this.service.list'),
             undefined,
             undefined
         )
@@ -83,10 +81,7 @@ function generateGetFunction(entity) {
 
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('service')),
-                ts.factory.createIdentifier('get')
-            ),
+            createPropertyAccess('this.service.get'),
             undefined,
             [
                 ts.factory.createIdentifier('id')
@@ -133,10 +128,7 @@ function generateSaveFunction(entity) {
 
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('service')),
-                ts.factory.createIdentifier('save')
-            ),
+            createPropertyAccess('this.service.save'),
             undefined,
             [
                 ts.factory.createIdentifier('dto')
@@ -163,10 +155,7 @@ function generateRemoveFunction() {
 
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('service')),
-                ts.factory.createIdentifier('remove')
-            ),
+            createPropertyAccess('this.service.remove'),
             undefined,
             [
                 ts.factory.createIdentifier('id')

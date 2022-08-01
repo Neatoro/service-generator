@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { ImportHandler } from './lib/imports.js';
+import { createPropertyAccess } from './lib/utils.js';
 
 export function generateService(entity) {
     const importHandler = new ImportHandler();
@@ -67,10 +68,7 @@ function generateServiceConstructor(entity) {
 function generateListFunction(entity) {
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('repository')),
-                ts.factory.createIdentifier('find')
-            ),
+            createPropertyAccess('this.repository.find'),
             undefined,
             undefined
         )
@@ -86,10 +84,7 @@ function generateListFunction(entity) {
 function generateGetFunction(entity) {
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('repository')),
-                ts.factory.createIdentifier('findOneBy')
-            ),
+            createPropertyAccess('this.repository.findOneBy'),
             undefined,
             [
                 ts.factory.createObjectLiteralExpression([ts.factory.createIdentifier('id')])
@@ -128,10 +123,7 @@ function generateGetFunction(entity) {
 function generateSaveFunction(entity) {
     const returnStatement = ts.factory.createReturnStatement(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('repository')),
-                ts.factory.createIdentifier('save')
-            ),
+            createPropertyAccess('this.repository.save'),
             undefined,
             [
                 ts.factory.createIdentifier('dto')
@@ -151,10 +143,7 @@ function generateSaveFunction(entity) {
 function generateRemoveFunction() {
     const awaitStatement = ts.factory.createAwaitExpression(
         ts.factory.createCallExpression(
-            ts.factory.createPropertyAccessExpression(
-                ts.factory.createPropertyAccessExpression(ts.factory.createThis(), ts.factory.createIdentifier('repository')),
-                ts.factory.createIdentifier('delete')
-            ),
+            createPropertyAccess('this.repository.delete'),
             undefined,
             [
                 ts.factory.createIdentifier('id')
