@@ -1,5 +1,5 @@
 import { createRequire } from 'module';
-import { Entity } from '../code/entity.js';
+import { Entity } from '../code/lib/entity.js';
 
 const typeMap = {
     string: 'string',
