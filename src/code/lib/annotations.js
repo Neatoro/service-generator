@@ -13,3 +13,15 @@ export function createModuleAnnotation({ imports = [], controllers = [], provide
 
     return moduleAnnotation;
 };
+
+export const entityAnnotation = ts.factory.createDecorator(
+    ts.factory.createCallExpression(ts.factory.createIdentifier('Entity'))
+);
+
+export const idAnnotation = ts.factory.createDecorator(
+    ts.factory.createCallExpression(ts.factory.createIdentifier('PrimaryGeneratedColumn'), undefined, [ts.factory.createStringLiteral('uuid', true)])
+);
+
+export const columnAnnotation = ts.factory.createDecorator(
+    ts.factory.createCallExpression(ts.factory.createIdentifier('Column'))
+);
