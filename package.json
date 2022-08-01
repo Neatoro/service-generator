@@ -4,7 +4,9 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "format": "prettier --write .",
+    "lint": "eslint ."
   },
   "license": "ISC",
   "dependencies": {
@@ -13,6 +15,8 @@
     "typescript": "^4.7.4"
   },
   "devDependencies": {
+    "eslint": "^8.21.0",
+    "prettier": "^2.7.1",
     "sqlite3": "^5.0.11"
   }
 }

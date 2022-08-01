@@ -1,11 +1,11 @@
 {
-    "dependencies": {
-        "@nestjs/common": "^9.0.7",
-        "@nestjs/core": "^9.0.7",
-        "@nestjs/platform-express": "^9.0.7",
-        "@nestjs/typeorm": "^9.0.0",
-        "ts-node": "^10.9.1",
-        "typeorm": "^0.3.7",
-        "typescript": "^4.7.4"
-    }
+  "dependencies": {
+    "@nestjs/common": "^9.0.7",
+    "@nestjs/core": "^9.0.7",
+    "@nestjs/platform-express": "^9.0.7",
+    "@nestjs/typeorm": "^9.0.0",
+    "ts-node": "^10.9.1",
+    "typeorm": "^0.3.7",
+    "typescript": "^4.7.4"
+  }
 }
