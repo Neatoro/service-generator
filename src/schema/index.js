@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import { Entity } from '../code/entity.js';
 
 const typeMap = {
     string: 'string',
@@ -23,13 +24,13 @@ export function loadValidSchema({ path }) {
 export function transformSchema({ schema }) {
     const properties = Object.keys(schema.properties);
 
-    const entity = {
+    const entity = new Entity({
         name: schema.title,
         properties: properties.map((property) => ({
             name: property,
             type: typeMap[schema.properties[property].type]
         }))
-    };
+    });
 
     return {
         entities: [entity]

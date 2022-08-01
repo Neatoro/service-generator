@@ -2,23 +2,21 @@ import ts from 'typescript';
 import { ImportHandler } from './lib/imports.js';
 
 export function generateController(entity) {
-    const controllerName = `${entity.name}Controller`;
-
     const importHandler = new ImportHandler();
     importHandler
         .addImport({ fields: ['Controller', 'Delete', 'Get', 'Param', 'Post', 'Body'], module: '@nestjs/common' })
-        .addImport({ fields: [`${entity.name}Service`], module: `../service/${entity.name}Service` })
-        .addImport({ fields: [entity.name], module: `../entity/${entity.name}` })
-        .addImport({ fields: [`${entity.name}Dto`], module:`../interface/${entity.name}Interface` });
+        .addImport({ fields: [entity.getServiceName()], module: `../service/${entity.getServiceName()}` })
+        .addImport({ fields: [entity.getEntityName()], module: `../entity/${entity.getEntityName()}` })
+        .addImport({ fields: [entity.getDtoName()], module:`../interface/${entity.getInterfaceName()}` });
 
     const controllerAnnotation = ts.factory.createDecorator(
-        ts.factory.createCallExpression(ts.factory.createIdentifier('Controller'), undefined, [ts.factory.createStringLiteral(entity.name.toLowerCase(), true)])
+        ts.factory.createCallExpression(ts.factory.createIdentifier('Controller'), undefined, [ts.factory.createStringLiteral(entity.getEntityName().toLowerCase(), true)])
     );
 
     const classNode = ts.factory.createClassDeclaration(
         [controllerAnnotation],
         [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-        controllerName,
+        entity.getControllerName(),
         undefined,
         undefined,
         [
@@ -31,7 +29,7 @@ export function generateController(entity) {
     );
 
     return {
-        name: controllerName,
+        name: entity.getControllerName(),
         node: ts.factory.createSourceFile([...importHandler.buildImports(), classNode]),
         type: 'controller'
     };
@@ -44,7 +42,7 @@ function generateContructor(entity) {
         undefined,
         'service',
         undefined,
-        ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(`${entity.name}Service`)),
+        ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(entity.getServiceName())),
         undefined
     )
 
@@ -69,7 +67,7 @@ function generateListFunction(entity) {
     );
     const block = ts.factory.createBlock([returnStatement]);
 
-    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createArrayTypeNode(ts.factory.createIdentifier(entity.name))]);
+    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createArrayTypeNode(ts.factory.createIdentifier(entity.getEntityName()))]);
 
     const listFunction = ts.factory.createMethodDeclaration([getAnnotation], undefined, undefined, 'list', undefined, undefined, [], returnType, block);
     return listFunction;
@@ -97,7 +95,7 @@ function generateGetFunction(entity) {
     );
     const block = ts.factory.createBlock([returnStatement]);
 
-    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createIdentifier(entity.name)]);
+    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createIdentifier(entity.getEntityName())]);
 
     const getFunction = ts.factory.createMethodDeclaration(
         [getAnnotation],
@@ -148,8 +146,8 @@ function generateSaveFunction(entity) {
 
     const block = ts.factory.createBlock([returnStatement]);
 
-    const dtoParameter = ts.factory.createParameterDeclaration([bodyAnnotation], undefined, undefined, 'dto', undefined, ts.factory.createTypeReferenceNode(`${entity.name}Dto`), undefined);
-    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createIdentifier(entity.name)]);
+    const dtoParameter = ts.factory.createParameterDeclaration([bodyAnnotation], undefined, undefined, 'dto', undefined, ts.factory.createTypeReferenceNode(entity.getDtoName()), undefined);
+    const returnType = ts.factory.createTypeReferenceNode('Promise', [ts.factory.createIdentifier(entity.getEntityName())]);
 
     const saveFunction = ts.factory.createMethodDeclaration([postAnnotation], undefined, undefined, 'save', undefined, undefined, [dtoParameter], returnType, block);
     return saveFunction;

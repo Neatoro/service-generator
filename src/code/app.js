@@ -8,8 +8,8 @@ export function generateAppModule(entities) {
         .addImport({ fields: ['Module'], module: '@nestjs/common' })
         .addImport({ fields: ['TypeOrmModule'], module: '@nestjs/typeorm' });
 
-    entities.forEach((entity) => importHandler.addImport({ fields: [`${entity.name}Module`], module: `../module/${entity.name}Module` }));
-    entities.forEach((entity) => importHandler.addImport({ fields: [entity.name], module: `../entity/${entity.name}` }));
+    entities.forEach((entity) => importHandler.addImport({ fields: [entity.getModuleName()], module: `../module/${entity.getModuleName()}` }));
+    entities.forEach((entity) => importHandler.addImport({ fields: [entity.getEntityName()], module: `../entity/${entity.getEntityName()}` }));
 
     const ormConfig = ts.factory.createVariableStatement(
         [ts.factory.createModifier(ts.SyntaxKind.ConstKeyword)],
@@ -36,8 +36,8 @@ export function generateAppModule(entities) {
         )
     );
 
-    const modulesLiterals = entities.map((entity) => ts.factory.createIdentifier(`${entity.name}Module`));
-    const entitiesLiterals = entities.map((entity) => ts.factory.createIdentifier(entity.name));
+    const modulesLiterals = entities.map((entity) => ts.factory.createIdentifier(entity.getModuleName()));
+    const entitiesLiterals = entities.map((entity) => ts.factory.createIdentifier(entity.getEntityName()));
 
     const config = ts.factory.createObjectLiteralExpression([
         ts.factory.createPropertyAssignment('entities', ts.factory.createArrayLiteralExpression(entitiesLiterals)),

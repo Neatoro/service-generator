@@ -54,11 +54,11 @@ function generateEntity(entity) {
 
         return ts.factory.createPropertyDeclaration([columnAnnotation], undefined, property.name, undefined, ts.factory.createTypeReferenceNode(property.type), undefined);    });
 
-    const classNode = ts.factory.createClassDeclaration([entityAnnotation], [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)], entity.name, undefined, [], [idProperty, ...properties]);
+    const classNode = ts.factory.createClassDeclaration([entityAnnotation], [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)], entity.getEntityName(), undefined, [], [idProperty, ...properties]);
 
     const block = ts.factory.createSourceFile([...importHandler.buildImports(), classNode]);
     return {
-        name: entity.name,
+        name: entity.getEntityName(),
         node: block,
         type: 'entity'
     };
