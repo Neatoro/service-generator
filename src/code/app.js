@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { createModuleAnnotation } from './lib/annotations.js';
 import { ImportHandler } from './lib/imports.js';
 
 export function generateAppModule(entities) {
@@ -44,20 +45,16 @@ export function generateAppModule(entities) {
         ts.factory.createSpreadAssignment(ts.factory.createIdentifier('ormconfig'))
     ]);
 
-    const moduleAnnotation = ts.factory.createDecorator(
-        ts.factory.createCallExpression(ts.factory.createIdentifier('Module'), undefined, [
-            ts.factory.createObjectLiteralExpression([
-                ts.factory.createPropertyAssignment('imports', ts.factory.createArrayLiteralExpression([
-                    ts.factory.createCallExpression(
-                        ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('TypeOrmModule'), 'forRoot'),
-                        undefined,
-                        [config]
-                    ),
-                    ...modulesLiterals
-                ]))
-            ])
-        ])
-    );
+    const moduleAnnotation = createModuleAnnotation({
+        imports: [
+            ts.factory.createCallExpression(
+                ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('TypeOrmModule'), 'forRoot'),
+                undefined,
+                [config]
+            ),
+            ...modulesLiterals
+        ]
+    })
 
     const classNode = ts.factory.createClassDeclaration(
         [moduleAnnotation],
