@@ -1,59 +1,11 @@
-import ts from 'typescript';
-import { createModuleAnnotation } from './lib/annotations.js';
-import { ImportHandler } from './lib/imports.js';
-import { createPropertyAccess } from './lib/utils.js';
+import { EntityModule } from './modules/entityModule.js';
 
 export function generateModule(entity) {
-  const moduleName = entity.getModuleName();
-
-  const importHandler = new ImportHandler();
-  importHandler
-    .addImport({ fields: ['Module'], module: '@nestjs/common' })
-    .addImport({ fields: ['TypeOrmModule'], module: '@nestjs/typeorm' })
-    .addImport({
-      fields: [entity.getControllerName()],
-      module: `../controller/${entity.getControllerName()}`
-    })
-    .addImport({
-      fields: [entity.getServiceName()],
-      module: `../service/${entity.getServiceName()}`
-    })
-    .addImport({
-      fields: [entity.getEntityName()],
-      module: `../entity/${entity.getEntityName()}`
-    });
-
-  const moduleAnnotation = createModuleAnnotation({
-    imports: [
-      ts.factory.createCallExpression(
-        createPropertyAccess('TypeOrmModule.forFeature'),
-        undefined,
-        [
-          ts.factory.createArrayLiteralExpression([
-            ts.factory.createIdentifier(entity.getEntityName())
-          ])
-        ]
-      )
-    ],
-    controllers: [ts.factory.createIdentifier(entity.getControllerName())],
-    providers: [ts.factory.createIdentifier(entity.getServiceName())]
-  });
-
-  const classNode = ts.factory.createClassDeclaration(
-    [moduleAnnotation],
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    moduleName,
-    undefined,
-    undefined,
-    []
-  );
+  const entityModule = new EntityModule({ entity });
 
   return {
-    name: moduleName,
-    node: ts.factory.createSourceFile([
-      ...importHandler.buildImports(),
-      classNode
-    ]),
-    type: 'module'
+    name: entityModule.name,
+    node: entityModule.buildSourceFile(),
+    type: entityModule.type
   };
 }
