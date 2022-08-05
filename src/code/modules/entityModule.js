@@ -3,7 +3,6 @@ import { createModuleAnnotation } from '../lib/annotations.js';
 import ts from 'typescript';
 import { createPropertyAccess } from '../lib/utils.js';
 
-
 export class EntityModule extends Source {
   constructor({ entity }) {
     super({ name: entity.getModuleName(), type: 'module' });

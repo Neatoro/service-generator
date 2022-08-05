@@ -13,6 +13,8 @@ export class Source extends ImportHandler {
   }
 
   buildSourceFile() {
-    throw new Error('Source.build needs to be implemented in child class');
+    throw new Error(
+      'Source.buildSourceFile needs to be implemented in child class'
+    );
   }
 }

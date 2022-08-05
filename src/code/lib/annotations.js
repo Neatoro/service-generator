@@ -46,3 +46,51 @@ export const idAnnotation = ts.factory.createDecorator(
 export const columnAnnotation = ts.factory.createDecorator(
   ts.factory.createCallExpression(ts.factory.createIdentifier('Column'))
 );
+
+export const listAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Get'),
+    undefined,
+    []
+  )
+);
+
+export const getAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Get'),
+    undefined,
+    [ts.factory.createStringLiteral(':id', true)]
+  )
+);
+
+export const postAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Post'),
+    undefined,
+    []
+  )
+);
+
+export const deleteAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Delete'),
+    undefined,
+    [ts.factory.createStringLiteral(':id', true)]
+  )
+);
+
+export const idParamAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Param'),
+    undefined,
+    [ts.factory.createStringLiteral('id', true)]
+  )
+);
+
+export const bodyAnnotation = ts.factory.createDecorator(
+  ts.factory.createCallExpression(
+    ts.factory.createIdentifier('Body'),
+    undefined,
+    []
+  )
+);
