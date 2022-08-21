@@ -1,13 +1,8 @@
 import ts from 'typescript';
 import { generateAppModule } from './app.js';
 import { generateController } from './controller.js';
+import { DatabaseEntity } from './entity/databaseEntity.js';
 import { generateInterfaces } from './interface.js';
-import {
-  columnAnnotation,
-  entityAnnotation,
-  idAnnotation
-} from './lib/annotations.js';
-import { ImportHandler } from './lib/imports.js';
 import { generateModule } from './module.js';
 import { generateService } from './services.js';
 
@@ -50,48 +45,10 @@ export function generateCode({ definition }) {
 }
 
 function generateEntity(entity) {
-  const importHandler = new ImportHandler();
-  importHandler.addImport({
-    fields: ['Entity', 'PrimaryGeneratedColumn', 'Column'],
-    module: 'typeorm'
-  });
-
-  const idProperty = ts.factory.createPropertyDeclaration(
-    [idAnnotation],
-    undefined,
-    'id',
-    undefined,
-    ts.factory.createTypeReferenceNode('string'),
-    undefined
-  );
-
-  const properties = entity.properties.map((property) =>
-    ts.factory.createPropertyDeclaration(
-      [columnAnnotation],
-      undefined,
-      property.name,
-      undefined,
-      ts.factory.createTypeReferenceNode(property.type),
-      undefined
-    )
-  );
-
-  const classNode = ts.factory.createClassDeclaration(
-    [entityAnnotation],
-    [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    entity.getEntityName(),
-    undefined,
-    [],
-    [idProperty, ...properties]
-  );
-
-  const block = ts.factory.createSourceFile([
-    ...importHandler.buildImports(),
-    classNode
-  ]);
+  const dbEntity = new DatabaseEntity({ entity });
   return {
     name: entity.getEntityName(),
-    node: block,
+    node: dbEntity.buildSourceFile(),
     type: 'entity'
   };
 }
