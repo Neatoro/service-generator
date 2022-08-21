@@ -1,6 +1,6 @@
 import {
-    bodyAnnotation,
-    deleteAnnotation,
+  bodyAnnotation,
+  deleteAnnotation,
   getAnnotation,
   idParamAnnotation,
   listAnnotation,
